@@ -24,28 +24,31 @@ def main():
             types.append(a + b)
     typecycle = cycle(types)
 
-    if False:
+    if True:
         for channel in wifiscan.channels_24GHz():
-            d = data[wifiscan.channel_frequency_24GHz(channel)].values()
-            print 'Channel %2d: %f %f' % (
-                channel,
-                numpy.mean(d),
-                numpy.std(d))
-            plt.plot(
-                d,
-                next(typecycle),
-                label='2.4GHz channel %d' % channel)
+            d = data.get(wifiscan.channel_frequency_24GHz(channel), {}).values()
+            if d:
+                print 'Channel %2d: %f %f' % (
+                    channel,
+                    numpy.mean(d),
+                    numpy.std(d))
+                plt.plot(
+                    d,
+                    next(typecycle),
+                    label='2.4GHz channel %d' % channel)
     else:
         for channel in wifiscan.channels_5GHz():
-            d = data[wifiscan.channel_frequency_5GHz(channel)].values()
-            print 'Channel %2d: %f %f' % (
-                channel,
-                numpy.mean(d),
-                numpy.std(d))
-            plt.plot(
-                d,
-                next(typecycle),
-                label='5GHz channel %d' % channel)
+            d = data.get(wifiscan.channel_frequency_5GHz(channel), {}).values()
+            if d:
+                print 'Channel %2d: %f %f %f' % (
+                    channel,
+                    wifiscan.channel_frequency_5GHz(channel),
+                    numpy.mean(d),
+                    numpy.std(d))
+                plt.plot(
+                    d,
+                    next(typecycle),
+                    label='5GHz channel %d' % channel)
     #plt.yscale('log')
     plt.legend()
     plt.ylabel('Blaha')
@@ -53,4 +56,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

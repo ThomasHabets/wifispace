@@ -9,8 +9,10 @@ from gnuradio import uhd, digital, blocks
 
 
 def channel_frequency_24GHz(n):
+    if n < 1:
+        raise ValueError("channel %d doesn't exist in 2.4GHz band" % n)
     if n < 14:
-        return 2412000000 + n * 5000000
+        return 2412000000 + (n-1) * 5000000
     if n == 14:
         return 2484000000
     raise ValueError("channel %d doesn't exist in 2.4GHz band" % n)
@@ -18,11 +20,11 @@ def channel_frequency_24GHz(n):
 
 def channel_frequency_5GHz(n):
     if 36 <= n <= 64:
-        return 5180000000 + (n-36)*10000000
+        return 5180000000 + (n-36)*10000000/2
     if r is None:
         raise ValueError("channel %d doesn't exist in 5GHz band" % n)
     return r
-        
+
 
 class my_top_block(gr.top_block):
     def __init__(self, frequency):
@@ -45,12 +47,12 @@ class my_top_block(gr.top_block):
         snr = digital.mpsk_snr_est_cc(type=0)
         snr.set_alpha(0.001)
         snr.set_tag_nsample(1000000)
-        
+
         rms = blocks.rms_cf()
         rms.set_alpha(0.0001)
-        
+
         self.msgq = gr.msg_queue(16)
-        
+
         sink = blocks.message_sink(4, self.msgq, 'bleh')
         self.connect(self.src, snr, rms, sink)
 
@@ -63,7 +65,7 @@ class parse_msg(object):
         t = msg.to_string()
         self.raw_data = t
         self.data = struct.unpack('%df' % (self.vlen,), t)
-        
+
 def print_freq(out, g, f):
     g.src.set_center_freq(f)
     t = time.time()
@@ -89,7 +91,7 @@ def main_loop():
             for channel in channels_5GHz():
                 print_freq(out, g, channel_frequency_5GHz(channel))
         g.stop()
-    
+
 if __name__ == '__main__':
     try:
         main_loop()
