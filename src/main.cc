@@ -23,6 +23,7 @@
 
 #include"wifiscan.h"
 
+// Defaults for flags.
 const std::string default_opt_A = "TX/RX";
 const std::string default_opt_d = "uhd";
 const float default_opt_g = 30;
@@ -34,6 +35,10 @@ std::string argv0;
 std::chrono::seconds staytime{2};
 int verbose = 0;
 
+// disclaimer:
+//   I'm new to gnuradio and practical radio experimentation in general, so
+//   most likely this pipeline is close to nonsense radio engineering wise.
+//   But it does work. So it has that going for it, which is nice.
 gr::top_block_sptr
 make_dsp(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq)
 {
@@ -92,7 +97,7 @@ mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::ve
         for(;;) {
                 for (auto& channel : all_channels) {
                         if (verbose) {
-                                std::cout << boost::format("Switching to channel %d\n") % channel.channel;
+                                std::cout << boost::format("Switching to channel %d, frequency %f\n") % channel.channel % channel.frequency;
                         }
                         src->set_center_freq(channel.frequency);
                         for (;;) {
@@ -122,6 +127,7 @@ usage(int err)
                   <<               "  -h                Show this help text.\n"
                   <<               "  -o <output file>  Output filename. Mandatory.\n"
                   << boost::format("  -s <sample rate>  Sample rate to use. Default: %f\n") % default_opt_s
+                  <<               "  -v                Increase verbosity.\n"
                   <<               "  -Z                Disable gzip on output file.\n"
                 ;
         exit(0);
@@ -143,7 +149,7 @@ wrapped_main(int argc, char** argv)
 
         {
                 int opt;
-                while ((opt = getopt(argc, argv, "A:d:hg:o:s:Z")) != -1) {
+                while ((opt = getopt(argc, argv, "A:d:hg:o:s:vZ")) != -1) {
                         switch (opt) {
                         case 'A':
                                 antenna = optarg;
@@ -161,6 +167,9 @@ wrapped_main(int argc, char** argv)
                                 break;
                         case 's':
                                 sample_rate = strtoul(optarg, NULL, 0);
+                                break;
+                        case 'v':
+                                verbose++;
                                 break;
                         case 'Z':
                                 gzip = false;
