@@ -14,6 +14,7 @@ AC_PROG_MAKE_SET
 
 AC_CHECK_LIB([rt], [clock_gettime])
 AC_CHECK_LIB([boost_system], [_ZN5boost6system16generic_categoryEv])
+AC_CHECK_LIB([boost_iostreams], [_ZN5boost9iostreams4zlib16best_compressionE])
 
 PKG_CHECK_MODULES([GNURADIO], [gnuradio-digital gnuradio-blocks gnuradio-uhd gnuradio-runtime uhd])
 CXXFLAGS="-std=gnu++0x -Wall $GNURADIO_CFLAGS $CXXFLAGS"

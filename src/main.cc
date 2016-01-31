@@ -1,6 +1,7 @@
+#include<chrono>
+#include<fstream>
 #include<iostream>
 #include<string>
-#include<chrono>
 #include<vector>
 
 #include<boost/accumulators/accumulators.hpp>
@@ -8,6 +9,8 @@
 #include<boost/accumulators/statistics/stats.hpp>
 #include<boost/accumulators/statistics/variance.hpp>
 #include<boost/bind/placeholders.hpp>
+#include<boost/iostreams/filter/gzip.hpp>
+#include<boost/iostreams/filtering_stream.hpp>
 #include<boost/ref.hpp>
 
 #include<gnuradio/blocks/message_sink.h>
@@ -74,18 +77,8 @@ meanstd(const std::vector<float>& v)
                               sqrt(boost::accumulators::variance(acc)));
 }
 
-std::string
-log_line(const std::vector<float>& v)
-{
-        if (v.empty()) {
-                return "empty sample";
-        }
-        const auto t = meanstd(v);
-        return (boost::format("%f %f") % t.first % t.second).str();
-}
-
 void
-mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::vector<Channel>& all_channels)
+mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::vector<Channel>& all_channels, std::ostream& measurements)
 {
         auto last_switch = std::chrono::steady_clock::now();
         for(;;) {
@@ -100,7 +93,7 @@ mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::ve
                                 const auto msg = msgq->delete_head();
                                 const auto strength = meanstd(parse_msg(*msg));
 
-                                std::cout << boost::format("%.3f %d %.9f\n") % system_now % channel.frequency % strength.first;
+                                measurements << boost::format("%.3f %d %.9f\n") % system_now % channel.frequency % strength.first;
 
                                 if ((now - last_switch) > staytime) {
                                         last_switch = now;
@@ -119,7 +112,7 @@ wrapped_main()
         std::string device_addr = "uhd";
         const float initial_frequency = channel_by_number(channels_5GHz, 36).frequency;
         float gain = 30;
-        unsigned int sample_rate = 32000;
+        unsigned int sample_rate = 62500;
         std::string antenna = "TX/RX";
 
         auto src = gr::uhd::usrp_source
@@ -137,7 +130,19 @@ wrapped_main()
         std::vector<Channel> all_channels;
         all_channels.insert(all_channels.end(), channels_2_4GHz.begin(), channels_2_4GHz.end());
         all_channels.insert(all_channels.end(), channels_5GHz.begin(), channels_5GHz.end());
-        mainloop(src, msgq, all_channels);
+
+        std::ofstream fo("hello.gz", std::ofstream::binary);
+        if (!fo.is_open()) {
+                throw std::runtime_error("Failed to open measurement file");
+        }
+        std::ostream* measurements = &fo;
+        boost::iostreams::filtering_ostream z;
+        if (true) {
+                z.push(boost::iostreams::gzip_compressor(boost::iostreams::gzip_params(boost::iostreams::gzip::best_compression)));
+                z.push(fo);
+                measurements = &z;
+        }
+        mainloop(src, msgq, all_channels, *measurements);
         return 0;
 }
 
