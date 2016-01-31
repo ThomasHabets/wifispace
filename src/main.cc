@@ -1,5 +1,6 @@
 #include<iostream>
 #include<string>
+#include<chrono>
 #include<vector>
 
 #include<boost/accumulators/accumulators.hpp>
@@ -16,21 +17,16 @@
 #include<gnuradio/top_block.h>
 #include<gnuradio/uhd/usrp_source.h>
 
+#include"wifiscan.h"
+
+// Flags.
+std::chrono::seconds staytime{2};
+int verbose = 0;
+
 gr::top_block_sptr
-make(gr::msg_queue::sptr msgq)
+make_dsp(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq)
 {
-        std::string device_addr = "uhd";
-        float initial_frequency = 5.18e9;
-
         auto tb = gr::make_top_block("wifiscanner");
-
-        auto src = gr::uhd::usrp_source
-                ::make(device_addr,
-                       uhd::stream_args_t("fc32"));
-        src->set_samp_rate(32000);
-        src->set_center_freq(initial_frequency);
-        src->set_gain(30);
-        src->set_antenna("TX/RX");
 
         auto snr = gr::digital::mpsk_snr_est_cc
                 ::make(gr::digital::SNR_EST_SIMPLE);
@@ -84,19 +80,74 @@ log_line(const std::vector<float>& v)
         if (v.empty()) {
                 return "empty sample";
         }
-        auto t = meanstd(v);
+        const auto t = meanstd(v);
         return (boost::format("%f %f") % t.first % t.second).str();
+}
+
+void
+mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::vector<Channel>& all_channels)
+{
+        auto last_switch = std::chrono::steady_clock::now();
+        for(;;) {
+                for (auto& channel : all_channels) {
+                        if (verbose) {
+                                std::cout << boost::format("Switching to channel %d\n") % channel.channel;
+                        }
+                        src->set_center_freq(channel.frequency);
+                        for (;;) {
+                                const auto now = std::chrono::steady_clock::now();
+                                const auto system_now = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
+                                const auto msg = msgq->delete_head();
+                                const auto strength = meanstd(parse_msg(*msg));
+
+                                std::cout << boost::format("%.3f %d %.9f\n") % system_now % channel.frequency % strength.first;
+
+                                if ((now - last_switch) > staytime) {
+                                        last_switch = now;
+                                        break;
+                                }
+                        }
+                }
+        }
+}
+
+int
+wrapped_main()
+{
+        auto msgq = gr::msg_queue::make(16);
+
+        std::string device_addr = "uhd";
+        const float initial_frequency = channel_by_number(channels_5GHz, 36).frequency;
+        float gain = 30;
+        unsigned int sample_rate = 32000;
+        std::string antenna = "TX/RX";
+
+        auto src = gr::uhd::usrp_source
+                ::make(device_addr,
+                       uhd::stream_args_t("fc32"));
+        src->set_samp_rate(sample_rate);
+        src->set_center_freq(initial_frequency);
+        src->set_gain(gain);
+        src->set_antenna(antenna);
+
+        auto tb = make_dsp(src, msgq);
+        tb->start();
+        std::cout << "Running...\n";
+
+        std::vector<Channel> all_channels;
+        all_channels.insert(all_channels.end(), channels_2_4GHz.begin(), channels_2_4GHz.end());
+        all_channels.insert(all_channels.end(), channels_5GHz.begin(), channels_5GHz.end());
+        mainloop(src, msgq, all_channels);
+        return 0;
 }
 
 int
 main()
 {
-        auto msgq = gr::msg_queue::make(16);
-        auto tb = make(msgq);
-        tb->start();
-        std::cout << "Running...\n";
-        for(;;) {
-                auto msg = msgq->delete_head();
-                std::cout << log_line(parse_msg(*msg)) << std::endl;
+        try {
+                return wrapped_main();
+        } catch (const std::exception& e) {
+                std::cerr << boost::format("Exception: %s\n") % e.what();
+                return 1;
         }
 }

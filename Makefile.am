@@ -3,4 +3,5 @@ DISTCLEANFILES = *~
 
 bin_PROGRAMS=wifiscanner
 wifiscanner_SOURCES=\
-src/main.cc
+src/main.cc\
+src/frequencies.cc
