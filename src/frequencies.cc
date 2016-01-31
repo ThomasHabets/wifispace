@@ -1,3 +1,4 @@
+// Source of data: https://en.wikipedia.org/wiki/List_of_WLAN_channels
 #include<exception>
 
 #include<boost/format.hpp>
@@ -67,6 +68,10 @@ const std::vector<Channel> channels_5GHz{
         {196,	4980000000,	4990-4970},
 };
 
+// 2.4GHz channels are between 20 and 40MHz
+//   802.11b     DSSS 22MHz
+//   802.11g/n   OFDM 20MHz
+//   802.11n     OFDM 40MHz
 const std::vector<Channel> channels_2_4GHz{
         {1, 2412000000, 0},
         {2, 2417000000, 0},
