@@ -11,3 +11,20 @@ PKG_CONFIG_PATH=$HOME/opt/sdr/lib/pkgconfig ./configure --prefix=$HOME/opt/sdr C
 ```shell
 ./wifiscanner -o file-$(date +%s).txt.gz
 ```
+
+## Other visualizations
+
+```shell
+zcat file-1454279879.txt.gz | awk '$2 == 2412000000 { print $3}' > channel-data.txt
+./tools/density.R  --args channel-data.txt
+display wifiscanner.png
+```
+
+Also you can experiment with parameters to `density` and `plot`, like:
+
+```
+plot(
+  density(scan('channel-data2.txt'), 0.0000001),
+  xlim=c(0.00015,0.0002)
+)
+```
