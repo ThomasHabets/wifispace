@@ -21,7 +21,7 @@
 #include<gnuradio/top_block.h>
 #include<gnuradio/uhd/usrp_source.h>
 
-#include"wifiscan.h"
+#include"wifispace.h"
 
 // Defaults for flags.
 const std::string default_opt_A = "TX/RX";
@@ -42,7 +42,7 @@ int verbose = 0;
 gr::top_block_sptr
 make_dsp(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq)
 {
-        auto tb = gr::make_top_block("wifiscanner");
+        auto tb = gr::make_top_block("wifispace");
 
         auto snr = gr::digital::mpsk_snr_est_cc
                 ::make(gr::digital::SNR_EST_SIMPLE);

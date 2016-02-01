@@ -3,7 +3,7 @@
 
 #include<boost/format.hpp>
 
-#include"wifiscan.h"
+#include"wifispace.h"
 
 const std::vector<Channel> channels_5GHz{
         {7,	5035000000,	5040-5030},

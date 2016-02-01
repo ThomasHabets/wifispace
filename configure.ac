@@ -1,7 +1,7 @@
 AC_PREREQ(2.61)
 # Other names:
 #   wifispace
-AC_INIT(wifiscanner, 0.01, thomas@habets.se)
+AC_INIT(wifispace, 0.01, thomas@habets.se)
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([src/main.cc])
 AM_INIT_AUTOMAKE

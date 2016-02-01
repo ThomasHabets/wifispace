@@ -1,3 +1,7 @@
+# WiFiSpace
+
+GNURadio program for measuring how busy wifi channels are.
+
 ## Installing
 
 If GNURadio is installed in a non-standard location, run:
@@ -9,7 +13,7 @@ PKG_CONFIG_PATH=$HOME/opt/sdr/lib/pkgconfig ./configure --prefix=$HOME/opt/sdr C
 ## Running
 
 ```shell
-./wifiscanner -o file-$(date +%s).txt.gz
+./wifispace -o file-$(date +%s).txt.gz
 ```
 
 ## Other visualizations
@@ -17,7 +21,7 @@ PKG_CONFIG_PATH=$HOME/opt/sdr/lib/pkgconfig ./configure --prefix=$HOME/opt/sdr C
 ```shell
 zcat file-1454279879.txt.gz | awk '$2 == 2412000000 { print $3}' > channel-data.txt
 ./tools/density.R  --args channel-data.txt
-display wifiscanner.png
+display wifispace.png
 ```
 
 Also you can experiment with parameters to `density` and `plot`, like:
