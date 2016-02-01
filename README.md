@@ -10,7 +10,7 @@ git clone https://github.com/ThomasHabets/wifispace.git
 ## Installing
 
 For most users you just need to install the dependencies, and then do
-the normal `./configure && make && make install dance`.
+the normal `./configure && make && make install` dance.
 
 ```shell
 apt-get install gnuradio-dev libuhd-dev libboost-all-dev
