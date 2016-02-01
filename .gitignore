@@ -1,5 +1,6 @@
 *.in
 *.o
+*.pyc
 *~
 .deps
 .dirstamp
