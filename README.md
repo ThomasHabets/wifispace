@@ -33,7 +33,7 @@ PKG_CONFIG_PATH=$HOME/opt/sdr/lib/pkgconfig ./configure --prefix=$HOME/opt/sdr C
 
 ## Visualizations
 
-### Density graph of how business is distributed over your samples
+### Density graph of how busyness is distributed over your samples
 
 ```shell
 zcat file-1454279879.txt.gz | awk '$2 == 2412000000 { print $3}' > channel-data.txt
