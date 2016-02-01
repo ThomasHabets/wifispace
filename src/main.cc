@@ -1,3 +1,7 @@
+/** wifispace/src/main.c
+ *  Copyright Thomas Habets <thomas@habets.se> 2016
+ */
+#include"config.h"
 #include<chrono>
 #include<fstream>
 #include<iostream>
@@ -22,6 +26,8 @@
 #include<gnuradio/uhd/usrp_source.h>
 
 #include"wifispace.h"
+
+static const std::string version = VERSION; /* from autoconf */
 
 // Defaults for flags.
 const std::string default_opt_A = "TX/RX";
@@ -120,7 +126,8 @@ mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::ve
 void
 usage(int err)
 {
-        std::cout << boost::format("Usage: %s [options] -o <output>\n") % argv0
+        std::cout << boost::format("wifispace %s, by Thomas Habets <thomas@habets.se>\n") % version
+                  << boost::format("Usage: %s [options] -o <output>\n") % argv0
                   << boost::format("  -A <antenna>      Antenna to use. Default: %s\n") % default_opt_A
                   << boost::format("  -d <device>       Device address. Default: %s\n") % default_opt_d
                   << boost::format("  -g <gain>         Input gain. Default: %f\n") % default_opt_g
