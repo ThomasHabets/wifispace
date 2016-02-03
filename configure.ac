@@ -3,7 +3,7 @@ AC_PREREQ(2.61)
 #   wifispace
 AC_INIT(wifispace, 0.01, thomas@habets.se)
 AC_CANONICAL_SYSTEM
-AC_CONFIG_SRCDIR([src/main.cc])
+AC_CONFIG_SRCDIR([src/wifispace.cc])
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 AC_CONFIG_HEADER(config.h)

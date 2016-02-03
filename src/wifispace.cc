@@ -15,7 +15,7 @@
 #include<gnuradio/top_block.h>
 #include<gnuradio/uhd/usrp_source.h>
 
-#include"wifispace.h"
+#include"common.h"
 
 static const std::string version = VERSION; /* from autoconf */
 
