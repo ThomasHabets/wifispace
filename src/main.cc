@@ -36,7 +36,7 @@ mainloop(gr::uhd::usrp_source::sptr src, gr::msg_queue::sptr msgq, const std::ve
 {
         auto last_switch = std::chrono::steady_clock::now();
         for(;;) {
-                for (auto& channel : all_channels) {
+                for (const auto& channel : all_channels) {
                         if (verbose) {
                                 std::cout << boost::format("Switching to channel %d, frequency %f\n") % channel.channel % channel.frequency;
                         }
@@ -72,7 +72,7 @@ usage(int err)
                   <<               "  -v                Increase verbosity.\n"
                   <<               "  -Z                Disable gzip on output file.\n"
                 ;
-        exit(0);
+        exit(err);
 }
 
 int
