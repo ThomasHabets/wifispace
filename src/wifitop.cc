@@ -100,7 +100,7 @@ wrapped_main(int argc, char** argv)
 
         {
                 int opt;
-                while ((opt = getopt(argc, argv, "A:d:hg:s:vZ")) != -1) {
+                while ((opt = getopt(argc, argv, "A:b:d:hg:s:vZ")) != -1) {
                         switch (opt) {
                         case 'A':
                                 antenna = optarg;
